@@ -460,24 +460,10 @@ class SkipGramModel(nn.Module):
 
     def save_embedding_pt(self, dataset, file_name):
         """ For ogb leaderboard. """
-        try:
-            max_node_id = max(dataset.node2id.keys())
-            if max_node_id + 1 != self.emb_size:
-                print("WARNING: The node ids are not serial.")
-
-            embedding = torch.zeros(max_node_id + 1, self.emb_dimension)
-            index = torch.LongTensor(list(map(lambda id: dataset.id2node[id], list(range(self.emb_size)))))
-            embedding.index_add_(0, index, torch.Tensor(self.get_embedding()))
-            torch.save(embedding, file_name)
-        except:
-            self.save_embedding_pt_dgl_graph(dataset, file_name)
-
-    def save_embedding_pt_dgl_graph(self, dataset, file_name):
-        """ For ogb leaderboard. """
-        u_embeddings = torch.Tensor(self.get_embedding())
-        embedding = torch.zeros_like(u_embeddings.cpu().data)
+        embedding = torch.Tensor(self.get_embedding()).cpu()
+        embedding_empty = torch.zeros_like(embedding.data)
         valid_nodes = torch.LongTensor(dataset.valid_nodes)
-        valid_embedding = u_embeddings.cpu().data.index_select(0, valid_nodes)
-        embedding.index_add_(0, valid_nodes, valid_embedding)
+        valid_embedding = embedding.data.index_select(0, valid_nodes)
+        embedding_empty.index_add_(0, valid_nodes, valid_embedding)
 
-        torch.save(embedding, file_name)
+        torch.save(embedding_empty, file_name)

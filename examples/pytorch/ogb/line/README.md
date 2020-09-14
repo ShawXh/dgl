@@ -41,15 +41,15 @@ cp embedding_pt_file_path ./
 python3 mlp.py --device 0 --use_node_embedding
 ```
 
-## Result
-ogbl-arxiv
+## Results
+ogbn-arxiv
 <br>#params: 33023343(model) + 142888(mlp) = 33166231
 <br>Highest Train: 82.94 ± 0.11
 <br>Highest Valid: 71.76 ± 0.08
 <br>Final Train: 80.74 ± 1.30
 <br>Final Test: 70.47 ± 0.19
 
-<br>obgl-proteins
+<br>obgn-proteins
 <br>#params: 25853524(model) + 129648(mlp) = 25983172
 <br>Highest Train: 93.11 ± 0.04
 <br>Highest Valid: 70.50 ± 1.29
@@ -57,9 +57,20 @@ ogbl-arxiv
 <br>Final Test: 62.07 ± 1.25
 
 
-<br>ogbl-products
+<br>ogbn-products
 <br>#params: 477570049(model) + 136495(mlp) = 477706544
 <br>Highest Train: 98.01 ± 0.32
 <br>Highest Valid: 89.57 ± 0.09
 <br>Final Train: 94.96 ± 0.43
 <br>Final Test: 72.52 ± 0.29
+
+## Notes
+Since ogb is somehow incompatible with multi-GPU training, to utlize multi-GPU, we need to load datasets as a local file before training by the following command:
+```
+python3 load_dataset.py --name dataset_name
+```
+where `dataset_name` can be `ogbn-arxiv`, `ogbn-proteins`, and `ogbn-products`. After that, a local file `$dataset_name$-graph.bin` will be generated. Then run:
+```
+python3 deepwalk.py --data_file $dataset_name$-graph.bin
+```
+where the other parameters are the same with used configs without using `--load_from_ogbn` and `--ogbn_name`.
